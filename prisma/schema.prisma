@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum EnquiryStatus {
+  NEW
+  IN_PROGRESS
+  RESPONDED
+  CLOSED
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  title       String
+  category    String
+  location    String?
+  description String
+  scope       String?
+  imageUrl    String?
+  status      ContentStatus @default(DRAFT)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Certificate {
+  id          String        @id @default(cuid())
+  title       String
+  issuer      String?
+  certificateNo String?
+  issueDate   DateTime?
+  expiryDate  DateTime?
+  documentUrl String?
+  notes       String?
+  status      ContentStatus @default(DRAFT)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model TenderRecord {
+  id          String        @id @default(cuid())
+  title       String
+  department  String?
+  tenderNo    String?
+  category    String?
+  value       Decimal?      @db.Decimal(14, 2)
+  status      ContentStatus @default(DRAFT)
+  description String?
+  documentUrl String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Enquiry {
+  id          String        @id @default(cuid())
+  name        String
+  organisation String?
+  email       String
+  phone       String?
+  message     String
+  status      EnquiryStatus @default(NEW)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
