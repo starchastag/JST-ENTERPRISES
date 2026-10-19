@@ -3,46 +3,70 @@
 Premium bilingual (English/Hindi) Next.js homepage for an engineering, building maintenance and facility services company.
 
 ## Requirements
+
 - Node.js 20.9+
 - npm
 
-## Setup
+## 1. Install dependencies
+
+The project uses Next.js 15, Prisma and PostgreSQL. Run:
+
 ```bash
 npm install
+npm install @prisma/client
+npm install -D prisma
+```
+
+## 2. Configure the database
+
+Copy `.env.example` to `.env.local` and set `DATABASE_URL` to your PostgreSQL database. Set a long random `ADMIN_API_KEY` too. Never commit `.env.local`.
+
+Example:
+
+```env
+DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/hst_enterprises?schema=public"
+ADMIN_API_KEY="replace-with-a-long-random-secret"
+```
+
+## 3. Create tables
+
+```bash
+npx prisma generate
+npx prisma migrate dev --name phase4_initial
+```
+
+If Prisma reports that the database does not exist, create a PostgreSQL database named `hst_enterprises` first, or change the connection URL to an existing database.
+
+## 4. Start the site
+
+```bash
 npm run dev
 ```
-Open http://localhost:3000
 
-## Production build
-```bash
-npm run build
-npm start
-```
+Open:
 
-## Main files
-- `src/app/page.tsx` — homepage, language toggle, service cards and enquiry form
-- `src/app/globals.css` — visual theme, responsive layout and building illustration
-- `src/app/layout.tsx` — metadata and global stylesheet
-- `tailwind.config.ts` — Tailwind theme
-- `package.json` — dependencies and scripts
+- Public website: `http://localhost:3000`
+- Admin portal: `http://localhost:3000/admin`
 
-## Before publishing
-1. Replace `info@hstenterprises.example` in `src/app/page.tsx` with the company's real enquiry email.
-2. Add verified phone number, registered office address, GST/PAN and relevant registrations/certifications only if applicable.
-3. Add real project photographs, work orders and client references only with permission.
-4. The current form opens the visitor's email application using `mailto:`. To save enquiries online, connect a backend/API and add spam protection.
-5. The building illustration is CSS-drawn; no external image or 3D model is required.
-6. Review all service claims against the company's actual capabilities and tender eligibility before publishing.
+## Available endpoints
 
-## Notes
-The site is a Phase 1 frontend prototype. It does not include a database, authentication, admin dashboard, tender feed or backend form storage.
+- `POST /api/enquiries` — public enquiry form submission
+- `GET /api/admin/overview` — summary counts (requires `x-admin-key`)
+- `GET /api/admin/projects` — list projects (requires `x-admin-key`)
+- `POST /api/admin/projects` — create project (requires `x-admin-key`)
+- `PATCH /api/admin/projects/:id` — update project (requires `x-admin-key`)
+- `DELETE /api/admin/projects/:id` — delete project (requires `x-admin-key`)
+- `GET /api/admin/enquiries` — list enquiries (requires `x-admin-key`)
+- `PATCH /api/admin/enquiries/:id` — update enquiry status (requires `x-admin-key`)
+- `GET/POST /api/admin/certificates` — list/create certificates (requires `x-admin-key`)
+- `GET/POST /api/admin/tenders` — list/create tender records (requires `x-admin-key`)
 
+## Important security note
 
-## Phase 3 additions
-- Interactive building systems explorer embedded on the homepage.
-- Animated, filterable project gallery with detail modal on `/projects`.
-- Responsive CSS building illustration.
-- Gallery items are placeholders; replace with verified projects and approved images before publishing.
+This is a development starter, not a production-ready identity system. The dashboard sends a shared admin key from the browser to protected API routes; the key is not saved in localStorage, but it is still present in the running page's memory and network requests. Use only in a controlled development environment. Before production, replace this with individual admin accounts, hashed passwords, secure HTTP-only session cookies, CSRF protections where applicable, rate limiting, validation, audit logs, and role-based permissions. Never use a real long-term secret in a public browser app.
 
+The enquiry endpoint should also get rate limiting and spam protection before production. File upload handling is not included yet; document URLs are plain text fields, not secure uploads.
 
-Phase 4 adds `prisma/schema.prisma`, protected API routes, a starter admin portal at `/admin`, and a database-backed public enquiry endpoint at `POST /api/enquiries`. See `README_PHASE4.md` for setup and security limitations.
+## Project content note
+
+The demo portfolio items are placeholders. Only publish verified projects, real tender information, and valid company certificates.
